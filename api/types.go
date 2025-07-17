@@ -1,11 +1,27 @@
 package api
 
-type AllMidsRequest struct {
+type Request struct {
 	Type string `json:"type"`
-	Dex  string `json:"dex,omitempty"`
+}
+
+type AllMidsRequest struct {
+	Request
+	Dex string `json:"dex,omitempty"`
 }
 
 type MetadataRequest struct {
-	Type string `json:"type"`
+	Request
+	Dex string `json:"dex,omitempty"`
+}
+
+type ClearinghouseStateRequest struct {
+	Request
+	User string `json:"user"`
+	Dex  string `json:"dex,omitempty"`
+}
+
+type OpenOrdersRequest struct {
+	Request
+	User string `json:"user"`
 	Dex  string `json:"dex,omitempty"`
 }

@@ -66,8 +66,10 @@ func (cli *Client) request(ctx context.Context, apiPath string, param interface{
 // Retrieve mids for all coins
 func (cli *Client) AllMids(ctx context.Context, dex string) (mids map[string]string, err error) {
 	param := api.AllMidsRequest{
-		Type: "allMids",
-		Dex:  dex,
+		Request: api.Request{
+			Type: "allMids",
+		},
+		Dex: dex,
 	}
 	mids = make(map[string]string)
 	err = cli.request(ctx, "info", param, &mids)
@@ -79,8 +81,10 @@ func (cli *Client) AllMids(ctx context.Context, dex string) (mids map[string]str
 
 func (cli *Client) Metadata(ctx context.Context, dex string) (coins []api.AssetMetadata, err error) {
 	param := api.MetadataRequest{
-		Type: "meta",
-		Dex:  dex,
+		Request: api.Request{
+			Type: "meta",
+		},
+		Dex: dex,
 	}
 	type WrapMetadata struct {
 		Universe []api.AssetMetadata `json:"universe"`
@@ -95,6 +99,38 @@ func (cli *Client) Metadata(ctx context.Context, dex string) (coins []api.AssetM
 	return
 }
 
+func (cli *Client) PerpetualsUserStat(ctx context.Context, user string, dex string) (state api.UserStat, err error) {
+	param := api.ClearinghouseStateRequest{
+		Request: api.Request{
+			Type: "clearinghouseState",
+		},
+		User: user,
+		Dex:  dex,
+	}
+
+	err = cli.request(ctx, "info", param, &state)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (cli *Client) OpenOrders(ctx context.Context, user string, dex string) (orders []api.OrderInfo, err error) {
+	param := api.OpenOrdersRequest{
+		Request: api.Request{
+			Type: "openOrders",
+		},
+		User: user,
+		Dex:  dex,
+	}
+
+	err = cli.request(ctx, "info", param, &orders)
+	if err != nil {
+		return
+	}
+	return
+}
+
 func (cli *Client) SubscribeAllMids() (err error) {
 	msg := struct {
 		Type string `json:"type"`
@@ -102,6 +138,18 @@ func (cli *Client) SubscribeAllMids() (err error) {
 	}{
 		Type: "allMids",
 		//	Dex:  dex,
+	}
+	cli.wsConn.Subscribe(msg)
+	return
+}
+
+func (cli *Client) SubscribeNotification(user string) (err error) {
+	msg := struct {
+		Type string `json:"type"`
+		User string `json:"user"`
+	}{
+		Type: "notification",
+		User: user,
 	}
 	cli.wsConn.Subscribe(msg)
 	return
